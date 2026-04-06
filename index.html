@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codex Developerum — Magical Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#c9a84c;--gold-light:#f0d080;--gold-dark:#8a6a1e;
+  --parchment:#f5e6c8;--parchment-dark:#e8d4a8;--parchment-deep:#d4b882;
+  --ink:#1a0f00;--ink-light:#3d2b0a;
+  --cover-dark:#0a0500;--cover-leather:#2d1506;
+  --red-magic:#8b1a1a;--blue-magic:#1a3a6b;
+  --glow:rgba(201,168,76,0.4);
+}
+html,body{height:100%;}
+body{
+  background:radial-gradient(ellipse at center,#0d0806 0%,#050200 100%);
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-family:'IM Fell English',serif;overflow-x:hidden;padding:20px;
+  cursor:none;
+}
+
+/* === CUSTOM CURSOR === */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  border-radius:50%;pointer-events:none;z-index:9999;
+  background:rgba(201,168,76,0.9);
+  transform:translate(-50%,-50%);
+  transition:width 0.1s,height 0.1s;
+  box-shadow:0 0 8px rgba(201,168,76,0.8),0 0 20px rgba(201,168,76,0.4);
+  mix-blend-mode:screen;
+}
+#cursor.wand{
+  width:6px;height:6px;
+  background:rgba(255,230,100,1);
+  box-shadow:0 0 14px rgba(255,220,80,1),0 0 30px rgba(201,168,76,0.8);
+}
+
+/* === GLITTER CONTAINER === */
+#glitterCanvas{position:fixed;inset:0;pointer-events:none;z-index:9998;}
+
+/* === STARFIELD === */
+#starCanvas{position:fixed;inset:0;pointer-events:none;z-index:0;}
+#particleCanvas{position:fixed;inset:0;pointer-events:none;z-index:1;}
+
+/* === SITE TITLE === */
+.site-title{
+  font-family:'Cinzel Decorative',serif;
+  color:var(--gold);font-size:clamp(13px,1.8vw,20px);
+  letter-spacing:5px;margin-bottom:28px;text-align:center;
+  text-shadow:0 0 30px var(--glow),0 0 60px rgba(201,168,76,0.2);
+  position:relative;z-index:10;
+  animation:title-glow 3s ease-in-out infinite;
+}
+@keyframes title-glow{
+  0%,100%{text-shadow:0 0 20px var(--glow);}
+  50%{text-shadow:0 0 40px rgba(201,168,76,0.8),0 0 80px rgba(201,168,76,0.3);}
+}
+
+/* === BOOK SCENE === */
+.book-scene{
+  perspective:2500px;
+  width:min(820px,96vw);
+  position:relative;z-index:10;
+}
+
+/* =========================================
+   CLOSED BOOK — COVER
+   ========================================= */
+.book-closed{
+  display:flex;justify-content:center;align-items:stretch;
+  cursor:none;
+  filter:drop-shadow(0 40px 80px rgba(0,0,0,0.95)) drop-shadow(0 0 40px rgba(201,168,76,0.15));
+  transform-style:preserve-3d;
+  transition:transform 0.4s ease, filter 0.4s ease;
+}
+.book-closed:hover{
+  transform:translateY(-10px) rotateY(-5deg) scale(1.02);
+  filter:drop-shadow(0 50px 90px rgba(0,0,0,0.95)) drop-shadow(0 0 60px rgba(201,168,76,0.25));
+}
+
+.book-spine{
+  width:42px;
+  background:linear-gradient(90deg,#050100,#1c0800 30%,#2d1506 55%,#1a0800 80%,#080300);
+  border-radius:5px 0 0 5px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:space-between;
+  padding:20px 5px;flex-shrink:0;
+  position:relative;overflow:hidden;
+  box-shadow:inset -3px 0 8px rgba(0,0,0,0.5);
+}
+.book-spine::before{
+  content:'';position:absolute;top:0;left:5px;right:5px;bottom:0;
+  background:linear-gradient(180deg,transparent 0%,rgba(201,168,76,0.12) 40%,rgba(201,168,76,0.06) 60%,transparent 100%);
+}
+.spine-gem{
+  width:12px;height:12px;border-radius:50%;flex-shrink:0;position:relative;
+  background:radial-gradient(circle at 35% 30%,#ffe599,#c9a84c 40%,#6b4a10 80%);
+  box-shadow:0 0 8px rgba(201,168,76,0.7),0 0 2px rgba(255,230,100,0.5);
+}
+.spine-gem::after{
+  content:'';position:absolute;top:2px;left:3px;width:4px;height:3px;
+  background:rgba(255,255,200,0.7);border-radius:50%;
+}
+.spine-line{
+  flex:1;width:1.5px;margin:4px 0;
+  background:linear-gradient(180deg,transparent,rgba(201,168,76,0.5),rgba(201,168,76,0.3),transparent);
+}
+.spine-rune{
+  font-family:'Cinzel',serif;font-size:7px;color:rgba(201,168,76,0.4);
+  writing-mode:vertical-rl;letter-spacing:3px;text-transform:uppercase;
+}
+
+.book-cover{
+  flex:1;position:relative;
+  border:1.5px solid #4a2010;border-left:none;
+  border-radius:0 8px 8px 0;
+  min-height:480px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.cover-leather-bg{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(170deg,transparent,transparent 7px,rgba(0,0,0,0.06) 7px,rgba(0,0,0,0.06) 8px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,0.015) 40px,rgba(255,255,255,0.015) 41px),
+    linear-gradient(150deg,#4a1e0a 0%,#2d1205 25%,#1a0a02 55%,#0e0501 80%,#080300 100%);
+}
+.cover-emboss{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 30% 20%,rgba(255,180,80,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse at 70% 80%,rgba(255,100,30,0.03) 0%,transparent 50%);
+}
+.cover-frame-outer{position:absolute;inset:12px;border:2px solid rgba(139,107,30,0.7);border-radius:4px;pointer-events:none;}
+.cover-frame-inner{position:absolute;inset:20px;border:1px solid rgba(201,168,76,0.25);border-radius:2px;pointer-events:none;}
+.cover-corner{position:absolute;width:36px;height:36px;pointer-events:none;}
+.cover-corner svg{filter:drop-shadow(0 0 4px rgba(201,168,76,0.3));}
+.cover-corner.tl{top:14px;left:14px;}
+.cover-corner.tr{top:14px;right:14px;transform:scaleX(-1);}
+.cover-corner.bl{bottom:14px;left:14px;transform:scaleY(-1);}
+.cover-corner.br{bottom:14px;right:14px;transform:scale(-1);}
+.cover-band-h{
+  position:absolute;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.4),rgba(201,168,76,0.6),rgba(201,168,76,0.4),transparent);
+}
+.cover-band-h.top{top:50px;}
+.cover-band-h.bot{bottom:50px;}
+.cover-inner{
+  position:relative;z-index:5;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 28px;
+}
+.cover-medallion{width:130px;height:130px;position:relative;margin-bottom:6px;}
+.cover-medallion svg{width:100%;height:100%;}
+.medallion-glow{
+  position:absolute;inset:-15px;
+  background:radial-gradient(ellipse,rgba(201,168,76,0.15) 0%,transparent 70%);
+  animation:medallion-pulse 3s ease-in-out infinite;
+}
+@keyframes medallion-pulse{0%,100%{opacity:0.6;}50%{opacity:1;}}
+.cover-ornament{display:flex;align-items:center;gap:8px;width:100%;max-width:280px;}
+.ornament-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark));}
+.ornament-line.r{background:linear-gradient(90deg,var(--gold-dark),transparent);}
+.ornament-diamond{width:6px;height:6px;background:var(--gold-dark);transform:rotate(45deg);flex-shrink:0;}
+.cover-title{
+  font-family:'Cinzel Decorative',serif;color:var(--gold-light);
+  font-size:clamp(18px,4vw,32px);line-height:1.25;letter-spacing:3px;
+  text-shadow:0 0 30px rgba(201,168,76,0.6),0 0 60px rgba(201,168,76,0.2),0 2px 6px rgba(0,0,0,0.9);
+  animation:title-shimmer 4s ease-in-out infinite;
+}
+@keyframes title-shimmer{
+  0%,100%{text-shadow:0 0 30px rgba(201,168,76,0.6),0 2px 6px rgba(0,0,0,0.9);}
+  50%{text-shadow:0 0 50px rgba(240,208,128,0.9),0 0 100px rgba(201,168,76,0.3),0 2px 6px rgba(0,0,0,0.9);}
+}
+.cover-subtitle{font-family:'Cinzel',serif;color:rgba(201,168,76,0.6);font-size:clamp(8px,1.4vw,12px);letter-spacing:5px;text-transform:uppercase;}
+.cover-author{font-family:'IM Fell English',serif;font-style:italic;color:rgba(201,168,76,0.5);font-size:clamp(11px,1.6vw,15px);}
+.cover-year{font-family:'Cinzel',serif;color:rgba(139,107,30,0.6);font-size:11px;letter-spacing:4px;}
+.open-hint{
+  margin-top:16px;font-family:'Cinzel',serif;font-size:clamp(9px,1.2vw,11px);
+  color:rgba(201,168,76,0.5);letter-spacing:4px;text-transform:uppercase;
+}
+.open-hint::before,.open-hint::after{content:'✦';margin:0 8px;color:rgba(201,168,76,0.4);}
+.hint-anim{animation:hint-breath 2.5s ease-in-out infinite;}
+@keyframes hint-breath{
+  0%,100%{opacity:0.4;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.02);}
+}
+
+/* =========================================
+   OPEN BOOK
+   ========================================= */
+.book-open{display:none;width:100%;position:relative;}
+.book-open.visible{display:block;}
+.open-container{
+  display:flex;align-items:stretch;
+  filter:drop-shadow(0 40px 80px rgba(0,0,0,0.95));
+  min-height:540px;
+  border-radius:0 8px 8px 0;overflow:hidden;
+  position:relative;
+}
+.open-spine{
+  width:28px;flex-shrink:0;
+  background:linear-gradient(90deg,#060100,#1c0a02 60%,#0a0400);
+  position:relative;z-index:10;
+}
+.open-spine::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,transparent,rgba(201,168,76,0.15),rgba(201,168,76,0.08),transparent);
+}
+.pages-wrapper{flex:1;position:relative;overflow:hidden;}
+.binding-shadow{
+  position:absolute;left:50%;top:0;bottom:0;width:24px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,rgba(0,0,0,0.35),rgba(0,0,0,0.08),rgba(0,0,0,0.35));
+  z-index:5;pointer-events:none;
+}
+
+/* Click zones for page turn */
+.click-zone{
+  position:absolute;top:0;bottom:0;width:50%;
+  z-index:20;cursor:none;
+  transition:background 0.2s;
+}
+.click-zone.left{left:0;}
+.click-zone.right{right:0;}
+.click-zone.left:hover{background:linear-gradient(90deg,rgba(201,168,76,0.04),transparent);}
+.click-zone.right:hover{background:linear-gradient(270deg,rgba(201,168,76,0.04),transparent);}
+.click-zone-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  font-family:'Cinzel',serif;font-size:18px;color:rgba(201,168,76,0.18);
+  pointer-events:none;transition:opacity 0.2s,color 0.2s;
+  opacity:0;
+}
+.click-zone:hover .click-zone-arrow{opacity:1;color:rgba(201,168,76,0.4);}
+.click-zone.left .click-zone-arrow{left:14px;}
+.click-zone.right .click-zone-arrow{right:14px;}
+
+/* =========================================
+   PAGE FLIP — 3D BOOK EFFECT
+   ========================================= */
+.page-spread{
+  display:none;position:absolute;inset:0;
+  transform-style:preserve-3d;
+}
+.page-spread.active{display:grid;grid-template-columns:1fr 1fr;position:relative;}
+.page-spread.single-page.active{display:block;}
+
+/* Flip Animations */
+@keyframes flip-right-out{
+  0%{opacity:1;transform:perspective(1800px) rotateY(0deg);transform-origin:left center;}
+  40%{opacity:0.5;}
+  100%{opacity:0;transform:perspective(1800px) rotateY(-35deg);transform-origin:left center;}
+}
+@keyframes flip-right-in{
+  0%{opacity:0;transform:perspective(1800px) rotateY(35deg);transform-origin:right center;}
+  60%{opacity:0.5;}
+  100%{opacity:1;transform:perspective(1800px) rotateY(0deg);transform-origin:right center;}
+}
+@keyframes flip-left-out{
+  0%{opacity:1;transform:perspective(1800px) rotateY(0deg);transform-origin:right center;}
+  100%{opacity:0;transform:perspective(1800px) rotateY(35deg);transform-origin:right center;}
+}
+@keyframes flip-left-in{
+  0%{opacity:0;transform:perspective(1800px) rotateY(-35deg);transform-origin:left center;}
+  100%{opacity:1;transform:perspective(1800px) rotateY(0deg);transform-origin:left center;}
+}
+.page-spread.flip-right-out{animation:flip-right-out 0.42s ease-in forwards;}
+.page-spread.flip-right-in{animation:flip-right-in 0.42s ease-out forwards;}
+.page-spread.flip-left-out{animation:flip-left-out 0.42s ease-in forwards;}
+.page-spread.flip-left-in{animation:flip-left-in 0.42s ease-out forwards;}
+
+/* Page styles */
+.page{
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(180,140,80,0.1) 27px,rgba(180,140,80,0.1) 28px),
+    linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 60%,#dfc898 100%);
+  padding:30px 26px 44px;position:relative;overflow:hidden;min-height:540px;
+}
+.page-left{border-right:1px solid rgba(180,140,80,0.25);}
+.page::before{
+  content:'';position:absolute;inset:0;opacity:0.3;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.page-right::after{
+  content:'';position:absolute;bottom:0;right:0;width:28px;height:28px;
+  background:linear-gradient(135deg,transparent 50%,rgba(180,140,80,0.25) 50%);
+  pointer-events:none;
+}
+.corner-deco{position:absolute;width:22px;height:22px;pointer-events:none;opacity:0.5;}
+.corner-deco.tl{top:16px;left:16px;border-top:1.5px solid var(--gold-dark);border-left:1.5px solid var(--gold-dark);}
+.corner-deco.tr{top:16px;right:16px;border-top:1.5px solid var(--gold-dark);border-right:1.5px solid var(--gold-dark);}
+.corner-deco.bl{bottom:16px;left:16px;border-bottom:1.5px solid var(--gold-dark);border-left:1.5px solid var(--gold-dark);}
+.corner-deco.br{bottom:16px;right:16px;border-bottom:1.5px solid var(--gold-dark);border-right:1.5px solid var(--gold-dark);}
+.page-content{position:relative;z-index:2;height:100%;}
+.page-chapter{font-family:'Cinzel Decorative',serif;font-size:clamp(10px,1.6vw,13px);color:var(--red-magic);letter-spacing:2px;margin-bottom:5px;text-align:center;}
+.page-title{font-family:'Cinzel',serif;font-size:clamp(13px,2.3vw,19px);color:var(--ink);text-align:center;margin-bottom:10px;line-height:1.3;}
+.page-rule{height:1px;margin:8px 0 12px;background:linear-gradient(90deg,transparent,var(--gold-dark),transparent);}
+.page-rule-double{border:none;margin:8px 0 12px;position:relative;height:6px;}
+.page-rule-double::before,.page-rule-double::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),transparent);}
+.page-rule-double::before{top:0;}
+.page-rule-double::after{bottom:0;}
+.page-body{font-family:'IM Fell English',serif;font-size:clamp(9.5px,1.35vw,12.5px);color:var(--ink-light);line-height:1.7;text-align:justify;}
+.page-body em{font-style:italic;color:var(--ink);}
+.drop-cap::first-letter{font-family:'Cinzel Decorative',serif;font-size:3.2em;float:left;line-height:0.75;margin-right:6px;margin-top:4px;color:var(--red-magic);}
+.skill-section-title{font-family:'Cinzel',serif;font-size:clamp(8px,1.1vw,10px);color:var(--red-magic);letter-spacing:2px;margin:12px 0 8px;text-align:center;}
+.skill-row{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.skill-label{font-family:'Cinzel',serif;font-size:clamp(7.5px,1.1vw,10.5px);color:var(--ink);min-width:68px;flex-shrink:0;}
+.skill-track{flex:1;height:7px;background:rgba(0,0,0,0.08);border:0.5px solid var(--gold-dark);overflow:hidden;}
+.skill-fill{height:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,var(--red-magic),var(--gold-dark));}
+.skill-stars{font-size:9px;color:var(--gold-dark);flex-shrink:0;}
+.tag{display:inline-block;border:0.5px solid var(--gold-dark);color:var(--ink-light);font-size:8px;font-family:'Cinzel',serif;padding:1px 5px;margin:2px 2px 0 0;}
+.project-entry{margin-bottom:13px;padding-bottom:11px;border-bottom:1px dashed rgba(180,140,80,0.3);}
+.project-entry:last-child{border-bottom:none;}
+.project-name{font-family:'Cinzel',serif;font-size:clamp(8.5px,1.3vw,11.5px);color:var(--ink);margin-bottom:2px;}
+.project-spell{font-style:italic;font-size:clamp(7.5px,1.1vw,9.5px);color:var(--red-magic);margin-bottom:3px;}
+.project-desc{font-size:clamp(7.5px,1.1vw,10px);color:var(--ink-light);line-height:1.5;}
+.achievement{display:flex;gap:9px;margin-bottom:11px;align-items:flex-start;}
+.achievement-seal{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--gold-dark);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:rgba(201,168,76,0.1);color:var(--gold-dark);}
+.achievement-text{flex:1;}
+.achievement-name{font-family:'Cinzel',serif;font-size:clamp(7.5px,1.2vw,10.5px);color:var(--ink);margin-bottom:2px;}
+.achievement-detail{font-size:clamp(7px,1vw,9.5px);color:var(--ink-light);font-style:italic;}
+.contact-form{display:flex;flex-direction:column;gap:9px;}
+.form-group label{display:block;font-family:'Cinzel',serif;font-size:clamp(7.5px,1.1vw,9.5px);color:var(--ink);letter-spacing:1px;margin-bottom:2px;}
+.form-group input,.form-group textarea{width:100%;background:rgba(255,255,255,0.45);border:1px solid var(--gold-dark);padding:6px 9px;font-family:'IM Fell English',serif;font-size:clamp(9px,1.2vw,11.5px);color:var(--ink);outline:none;border-radius:0;transition:border-color 0.2s,background 0.2s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--red-magic);background:rgba(255,255,255,0.65);}
+.form-group textarea{height:62px;resize:none;}
+.spell-btn{font-family:'Cinzel',serif;font-size:clamp(8px,1.2vw,10px);letter-spacing:2px;color:var(--parchment);background:linear-gradient(135deg,var(--red-magic),#3d0a0a);border:1px solid var(--gold-dark);padding:9px 16px;cursor:none;transition:all 0.2s;text-transform:uppercase;}
+.spell-btn:hover{background:linear-gradient(135deg,#a02020,var(--red-magic));box-shadow:0 0 18px rgba(139,26,26,0.5);}
+.contact-socials{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+.social-row{display:flex;align-items:center;gap:8px;font-size:clamp(8px,1.2vw,10.5px);color:var(--ink-light);font-style:italic;}
+.social-icon{width:17px;height:17px;border:1px solid var(--gold-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;color:var(--gold-dark);}
+.page-num{position:absolute;bottom:14px;font-family:'Cinzel',serif;font-size:9.5px;color:var(--gold-dark);}
+.page-left .page-num{left:26px;}
+.page-right .page-num{right:26px;}
+.page-name{position:absolute;bottom:14px;font-family:'IM Fell English',serif;font-style:italic;font-size:8.5px;color:var(--gold-dark);left:50%;transform:translateX(-50%);white-space:nowrap;}
+.about-portrait{width:72px;height:72px;border:2px solid var(--gold-dark);border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(139,26,26,0.08));display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:28px;}
+
+/* =========================================
+   RESUME PAGE — inside the book
+   ========================================= */
+.resume-download-box{
+  margin-top:14px;
+  border:1px solid rgba(201,168,76,0.4);
+  padding:14px 16px;
+  text-align:center;
+  background:rgba(201,168,76,0.06);
+}
+.resume-scroll-icon{font-size:28px;display:block;margin-bottom:6px;}
+.resume-title{font-family:'Cinzel',serif;font-size:clamp(9px,1.3vw,11px);color:var(--red-magic);letter-spacing:2px;margin-bottom:4px;}
+.resume-desc{font-family:'IM Fell English',serif;font-style:italic;font-size:clamp(8px,1.1vw,10px);color:var(--ink-light);margin-bottom:10px;}
+.resume-btn{
+  font-family:'Cinzel',serif;font-size:clamp(7.5px,1.1vw,10px);letter-spacing:2px;
+  color:var(--parchment);background:linear-gradient(135deg,var(--red-magic),#3d0a0a);
+  border:1px solid var(--gold-dark);padding:8px 20px;cursor:none;
+  transition:all 0.2s;text-transform:uppercase;display:inline-block;
+}
+.resume-btn:hover{background:linear-gradient(135deg,#a02020,var(--red-magic));box-shadow:0 0 18px rgba(139,26,26,0.5);}
+
+/* =========================================
+   CLOSING / BACK COVER PAGE
+   ========================================= */
+.back-cover-spread{
+  display:none;position:relative;
+}
+.back-cover-spread.active{display:block;}
+.back-cover{
+  position:relative;overflow:hidden;min-height:540px;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    repeating-linear-gradient(170deg,transparent,transparent 7px,rgba(0,0,0,0.06) 7px,rgba(0,0,0,0.06) 8px),
+    linear-gradient(150deg,#4a1e0a 0%,#2d1205 25%,#1a0a02 55%,#0e0501 80%,#080300 100%);
+  border-radius:0 8px 8px 0;
+}
+.back-cover-frame-outer{position:absolute;inset:12px;border:2px solid rgba(139,107,30,0.7);border-radius:4px;}
+.back-cover-frame-inner{position:absolute;inset:22px;border:1px solid rgba(201,168,76,0.2);border-radius:2px;}
+.back-cover-content{
+  position:relative;z-index:5;
+  display:flex;flex-direction:column;align-items:center;
+  gap:10px;padding:40px 50px;width:100%;max-width:700px;
+}
+.back-cover-title{
+  font-family:'Cinzel Decorative',serif;
+  color:var(--gold-light);font-size:clamp(18px,3vw,26px);
+  letter-spacing:3px;text-align:center;
+  text-shadow:0 0 30px rgba(201,168,76,0.6),0 2px 6px rgba(0,0,0,0.9);
+  animation:title-shimmer 4s ease-in-out infinite;
+}
+.back-cover-subtitle{
+  font-family:'Cinzel',serif;color:rgba(201,168,76,0.55);
+  font-size:clamp(8px,1.2vw,11px);letter-spacing:5px;text-transform:uppercase;
+}
+.back-cover-rule{
+  width:100%;max-width:400px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5),transparent);
+  margin:4px 0;
+}
+.hire-badge{
+  font-family:'Cinzel Decorative',serif;
+  color:var(--gold-light);font-size:clamp(11px,1.8vw,16px);
+  letter-spacing:2px;text-align:center;margin:4px 0;
+  text-shadow:0 0 20px rgba(201,168,76,0.5);
+  animation:hint-breath 3s ease-in-out infinite;
+}
+.back-contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;width:100%;margin-top:6px;
+}
+.back-contact-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 12px;
+  border:1px solid rgba(201,168,76,0.2);
+  background:rgba(0,0,0,0.2);
+}
+.back-contact-label{
+  font-family:'Cinzel',serif;font-size:clamp(7px,1vw,9px);
+  color:rgba(201,168,76,0.5);letter-spacing:2px;text-transform:uppercase;
+}
+.back-contact-value{
+  font-family:'IM Fell English',serif;font-style:italic;
+  font-size:clamp(8.5px,1.2vw,11px);color:rgba(201,168,76,0.8);
+  text-align:center;
+}
+.back-seal{
+  margin-top:6px;font-family:'Cinzel Decorative',serif;
+  font-size:clamp(8px,1.1vw,10px);color:rgba(201,168,76,0.35);
+  letter-spacing:3px;text-align:center;
+}
+.back-medallion{width:80px;height:80px;opacity:0.7;flex-shrink:0;}
+.back-hint{
+  font-family:'Cinzel',serif;font-size:clamp(8px,1.1vw,10px);
+  color:rgba(201,168,76,0.35);letter-spacing:3px;
+  text-transform:uppercase;margin-top:6px;
+  animation:hint-breath 2.5s ease-in-out infinite;
+}
+
+/* Page indicator dots */
+.page-dots{
+  display:flex;gap:8px;align-items:center;justify-content:center;
+  margin-top:16px;position:relative;z-index:10;
+}
+.page-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.3);
+  transition:all 0.3s;cursor:none;
+}
+.page-dot.active{
+  background:rgba(201,168,76,0.8);
+  box-shadow:0 0 8px rgba(201,168,76,0.5);
+}
+.page-indicator-label{
+  font-family:'IM Fell English',serif;font-style:italic;
+  color:rgba(201,168,76,0.5);font-size:11px;text-align:center;
+  margin-top:6px;position:relative;z-index:10;
+}
+
+/* Animations */
+.book-close-anim{animation:close-book 0.55s ease-in forwards;}
+@keyframes close-book{
+  0%{opacity:1;transform:scale(1);}
+  40%{transform:scale(1.01);}
+  100%{opacity:0;transform:scale(0.93) rotateY(12deg);}
+}
+.book-open-anim{animation:open-book 0.55s ease-out forwards;}
+@keyframes open-book{
+  0%{opacity:0;transform:scale(0.93) rotateY(-12deg);}
+  100%{opacity:1;transform:scale(1) rotateY(0deg);}
+}
+
+/* Success message */
+.success-msg{display:none;text-align:center;padding:16px;}
+.success-msg.show{display:block;}
+.success-spell{font-family:'Cinzel Decorative',serif;font-size:16px;color:var(--red-magic);margin-bottom:8px;animation:hint-breath 2s infinite;}
+
+/* Glitter particle */
+.glitter-particle{
+  position:fixed;pointer-events:none;border-radius:50%;
+  animation:glitter-fall linear forwards;
+  z-index:9997;
+}
+@keyframes glitter-fall{
+  0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1);}
+  100%{opacity:0;transform:translate(var(--gx),var(--gy)) rotate(var(--gr)) scale(0.2);}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<canvas id="glitterCanvas"></canvas>
+<canvas id="starCanvas"></canvas>
+<canvas id="particleCanvas"></canvas>
+
+<h1 class="site-title">✦ &nbsp; The Enchanted Portfolio &nbsp; ✦</h1>
+
+<div class="book-scene">
+<div id="theBook">
+
+  <!-- CLOSED BOOK -->
+  <div class="book-closed" id="closedBook" onclick="openBook()">
+    <div class="book-spine">
+      <div class="spine-gem"></div><div class="spine-line"></div>
+      <div class="spine-rune">Soumys's</div><div class="spine-line"></div>
+      <div class="spine-gem"></div><div class="spine-line"></div>
+      <div class="spine-rune">Dev</div><div class="spine-line"></div>
+      <div class="spine-gem"></div>
+    </div>
+    <div class="book-cover">
+      <div class="cover-leather-bg"></div><div class="cover-emboss"></div>
+      <div class="cover-frame-outer"></div><div class="cover-frame-inner"></div>
+      <div class="cover-corner tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+      <div class="cover-corner tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+      <div class="cover-corner bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+      <div class="cover-corner br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+      <div class="cover-band-h top"></div>
+      <div class="cover-band-h bot"></div>
+      <div class="cover-inner">
+        <div class="cover-medallion">
+          <div class="medallion-glow"></div>
+          <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="65" cy="65" r="60" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+            <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(201,168,76,0.15)" stroke-width="0.5"/>
+            <g stroke="rgba(201,168,76,0.5)" stroke-width="1"><line x1="65" y1="5" x2="65" y2="12"/><line x1="65" y1="118" x2="65" y2="125"/><line x1="5" y1="65" x2="12" y2="65"/><line x1="118" y1="65" x2="125" y2="65"/><line x1="19" y1="19" x2="24" y2="24"/><line x1="106" y1="19" x2="111" y2="24"/><line x1="19" y1="111" x2="24" y2="106"/><line x1="106" y1="111" x2="111" y2="106"/></g>
+            <path d="M65 18 L98 32 L98 68 Q98 92 65 108 Q32 92 32 68 L32 32 Z" fill="rgba(20,8,0,0.6)" stroke="rgba(139,107,30,0.8)" stroke-width="1.5"/>
+            <path d="M65 24 L92 36 L92 67 Q92 88 65 102 Q38 88 38 67 L38 36 Z" fill="rgba(201,168,76,0.04)" stroke="rgba(201,168,76,0.25)" stroke-width="0.5"/>
+            <path d="M72 30 L54 62 L68 62 L58 90 L80 55 L65 55 Z" fill="rgba(201,168,76,0.85)"/>
+            <circle cx="44" cy="44" r="2.5" fill="rgba(201,168,76,0.7)"/><circle cx="86" cy="44" r="2.5" fill="rgba(201,168,76,0.7)"/>
+            <circle cx="44" cy="82" r="2" fill="rgba(201,168,76,0.45)"/><circle cx="86" cy="82" r="2" fill="rgba(201,168,76,0.45)"/>
+            <circle cx="65" cy="15" r="2" fill="rgba(201,168,76,0.6)"/>
+            <circle cx="65" cy="115" r="2" fill="rgba(201,168,76,0.4)"/>
+          </svg>
+        </div>
+        <div class="cover-ornament">
+          <div class="ornament-line"></div><div class="ornament-diamond"></div>
+          <div class="ornament-diamond" style="width:3px;height:3px;"></div>
+          <div class="ornament-diamond"></div><div class="ornament-line r"></div>
+        </div>
+        <div class="cover-title">Soumya's<br>Developerum</div>
+        <div class="cover-ornament">
+          <div class="ornament-line"></div><div class="ornament-diamond" style="width:3px;height:3px;"></div><div class="ornament-line r"></div>
+        </div>
+        <div class="cover-subtitle">A Portfolio of Enchantments</div>
+        <div class="cover-author">Penned by Soumya Ghag</div>
+        <div class="cover-year">Software Developer</div>
+        <div class="cover-ornament" style="max-width:200px;">
+          <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line r"></div>
+        </div>
+        <div class="open-hint hint-anim">Tap to Open</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPEN BOOK -->
+  <div class="book-open" id="openBook">
+    <div class="open-container" id="openContainer">
+      <div class="open-spine"></div>
+      <div class="pages-wrapper" id="pagesWrapper">
+        <div class="binding-shadow"></div>
+
+        <!-- Click zones for page turning -->
+        <div class="click-zone left" id="leftZone" onclick="handleLeftClick()">
+          <span class="click-zone-arrow">‹</span>
+        </div>
+        <div class="click-zone right" id="rightZone" onclick="handleRightClick()">
+          <span class="click-zone-arrow">›</span>
+        </div>
+
+        <!-- SPREAD 0: Foreword / About -->
+        <div class="page-spread active" id="spread-0">
+          <div class="page page-left">
+            <div class="corner-deco tl"></div><div class="corner-deco bl"></div>
+            <div class="page-content">
+              <div class="page-chapter">Foreword</div>
+              <div class="page-title">Welcome, Traveller</div>
+              <div class="page-rule"></div>
+              <div class="page-body">
+                <div class="about-portrait">🧙</div>
+                <p class="drop-cap">Herein lies the collected works and enchantments of <em>Soumya Ghag</em>, a practitioner of the technical arts, wielder of code, and architect of solutions both elegant and powerful.</p>
+                <br>
+                <p>A <em>Software Developer</em> by craft, graduated from the halls of your university, now forging paths through the ever-shifting landscape of modern websites.</p>
+                <br>
+                <p>What follows is a faithful record of spells cast in code, achievements earned in battle, and knowledge accumulated through years of diligent study.</p>
+              </div>
+            </div>
+            <span class="page-num">i</span>
+          </div>
+          <div class="page page-right">
+            <div class="corner-deco tr"></div><div class="corner-deco br"></div>
+            <div class="page-content">
+              <div class="page-chapter">Chapter the First</div>
+              <div class="page-title">The Wizard's Calling</div>
+              <div class="page-rule"></div>
+              <div class="page-body">
+                <p><em>Education &amp; Origins</em></p><br>
+                <div class="achievement">
+                  <div class="achievement-seal">🎓</div>
+                  <div class="achievement-text">
+                    <div class="achievement-name">B.Tech — Computer Science</div>
+                    <div class="achievement-detail">Vidyalankar Institute of Technology · 2024–2028 · CGPA 8/10</div>
+                  </div>
+                </div>
+                <div class="achievement">
+                  <div class="achievement-seal">📜</div>
+                  <div class="achievement-text">
+                    <div class="achievement-name">Higher Secondary (XII)</div>
+                    <div class="achievement-detail">M.V.M College · Science Stream · 80%</div>
+                  </div>
+                </div>
+                <div class="achievement">
+                  <div class="achievement-seal">⚗️</div>
+                  <div class="achievement-text">
+                    <div class="achievement-name">Secondary (X)</div>
+                    <div class="achievement-detail">DAV Public · 85% · Distinction</div>
+                  </div>
+                </div>
+                <br><div class="page-rule"></div>
+                <p style="font-style:italic;font-size:clamp(7.5px,1.1vw,10px);color:var(--ink-light);">"It is our choices that show what we truly are, far more than our abilities." — A.P.W.B.D.</p>
+              </div>
+            </div>
+            <span class="page-num">ii</span>
+          </div>
+        </div>
+
+        <!-- SPREAD 1: Skills -->
+        <div class="page-spread" id="spread-1">
+          <div class="page page-left">
+            <div class="corner-deco tl"></div><div class="corner-deco bl"></div>
+            <div class="page-content">
+              <div class="page-chapter">Chapter the Second</div>
+              <div class="page-title">Spells &amp; Incantations</div>
+              <div class="page-rule"></div>
+              <p class="page-body" style="margin-bottom:10px;">Every developer commands a unique arsenal of enchantments. These are the spells cast most fluently:</p>
+              <div class="skill-section-title">— Frontend Arts —</div>
+              <div class="skill-row"><span class="skill-label">HTML / CSS</span><div class="skill-track"><div class="skill-fill" style="width:95%"></div></div><span class="skill-stars">★★★★★</span></div>
+              <div class="skill-row"><span class="skill-label">JavaScript</span><div class="skill-track"><div class="skill-fill" style="width:90%"></div></div><span class="skill-stars">★★★★★</span></div>
+              <div class="skill-row"><span class="skill-label">React.js</span><div class="skill-track"><div class="skill-fill" style="width:85%"></div></div><span class="skill-stars">★★★★☆</span></div>
+              <div class="skill-section-title" style="margin-top:14px;">— Backend Sorcery —</div>
+              <div class="skill-row"><span class="skill-label">Java</span><div class="skill-track"><div class="skill-fill" style="width:80%"></div></div><span class="skill-stars">★★★★☆</span></div>
+              <div class="skill-row"><span class="skill-label">Python</span><div class="skill-track"><div class="skill-fill" style="width:75%"></div></div><span class="skill-stars">★★★★☆</span></div>
+              <div class="skill-row"><span class="skill-label">SQL</span><div class="skill-track"><div class="skill-fill" style="width:78%"></div></div><span class="skill-stars">★★★★☆</span></div>
+            </div>
+            <span class="page-num">1</span>
+          </div>
+          <div class="page page-right">
+            <div class="corner-deco tr"></div><div class="corner-deco br"></div>
+            <div class="page-content">
+              <div class="page-chapter">Skills (Continued)</div>
+              <div class="page-title">Tools of the Trade</div>
+              <div class="page-rule"></div>
+              <div class="skill-section-title">— Arcane Tools —</div>
+              <div class="skill-row"><span class="skill-label">Git / GitHub</span><div class="skill-track"><div class="skill-fill" style="width:90%"></div></div><span class="skill-stars">★★★★★</span></div>
+              <div class="skill-row"><span class="skill-label">MySQL</span><div class="skill-track"><div class="skill-fill" style="width:70%"></div></div><span class="skill-stars">★★★☆☆</span></div>
+              <div class="skill-row"><span class="skill-label">AWS</span><div class="skill-track"><div class="skill-fill" style="width:65%"></div></div><span class="skill-stars">★★★☆☆</span></div>
+              <div class="page-rule" style="margin-top:14px;"></div>
+              <div class="skill-section-title">— Disciplines —</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                <span class="tag">Algorithm</span><span class="tag">Data Structures</span>
+                <span class="tag">Communication</span><span class="tag">Problem Solving</span>
+                <span class="tag">Team  Work</span><span class="tag">Leadership</span>
+              </div>
+              <div class="page-rule" style="margin-top:14px;"></div>
+              <p class="page-body" style="font-style:italic;font-size:clamp(8px,1.1vw,10px);">"Knowing a spell is not the same as mastering it. Only through practice does true power emerge."</p>
+            </div>
+            <span class="page-num">2</span>
+          </div>
+        </div>
+
+        <!-- SPREAD 2: Projects -->
+<div class="page-spread" id="spread-2">
+  <div class="page page-left">
+    <div class="corner-deco tl"></div><div class="corner-deco bl"></div>
+    <div class="page-content">
+      <div class="page-chapter">Chapter the Third</div>
+      <div class="page-title">The Book of Projects</div>
+      <div class="page-rule"></div>
+
+      <p class="page-body" style="margin-bottom:10px;font-style:italic;">
+        A collection of practical work showcasing my skills in web development, programming, and databases.
+      </p>
+
+      <!-- Project 1 -->
+      <div class="project-entry">
+        <div class="project-name">Food Guide Website</div>
+        <div class="project-spell">✦ HTML & CSS ✦</div>
+        <div class="project-desc">
+          Developed a static food website using HTML and CSS to showcase various food items and categories in a visually appealing manner. Designed a responsive layout with attractive styling to enhance user experience and usability.
+        </div>
+        <div style="margin-top:4px;">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+        </div>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="project-entry">
+        <div class="project-name">AI Tic-Tac-Toe Game</div>
+        <div class="project-spell">✦ Java & C ✦</div>
+        <div class="project-desc">
+          Built an interactive Tic-Tac-Toe game in C with an AI opponent using the minimax algorithm to make optimal moves. Implemented game logic for win/loss/draw conditions with a user-friendly console interface.
+        </div>
+        <div style="margin-top:4px;">
+          <span class="tag">C</span>
+          <span class="tag">Java</span>
+          <span class="tag">AI</span>
+        </div>
+      </div>
+    </div>
+    <span class="page-num">3</span>
+  </div>
+
+  <div class="page page-right">
+    <div class="corner-deco tr"></div><div class="corner-deco br"></div>
+    <div class="page-content">
+      <div class="page-chapter">Projects (Continued)</div>
+      <div class="page-title">Further Work</div>
+      <div class="page-rule"></div>
+
+      <!-- Project 3 -->
+      <div class="project-entry">
+        <div class="project-name">Student Management System</div>
+        <div class="project-spell">✦ SQL Database ✦</div>
+        <div class="project-desc">
+          Designed and implemented a Student Management System using SQL to manage student records including registration, courses, grades, and personal details. Created structured tables, applied normalization, and wrote queries for data retrieval, insertion, updating, and deletion.
+        </div>
+        <div style="margin-top:4px;">
+          <span class="tag">SQL</span>
+          <span class="tag">Database</span>
+        </div>
+      </div>
+
+      <div class="page-rule" style="margin-top:10px;"></div>
+
+      <p class="page-body" style="font-style:italic;font-size:clamp(8px,1.1vw,10px);">
+        Each project reflects my understanding of core concepts and my ability to apply them in real-world scenarios.
+      </p>
+    </div>
+    <span class="page-num">4</span>
+  </div>
+</div>
+        <!-- SPREAD 3: Experience & Achievements -->
+        <div class="page-spread" id="spread-3">
+          <div class="page page-left">
+            <div class="corner-deco tl"></div><div class="corner-deco bl"></div>
+            <div class="page-content">
+              <div class="page-chapter">Chapter the Fourth</div>
+              <div class="page-title">Battles Fought &amp; Won</div>
+              <div class="page-rule"></div>
+              <p class="page-body" style="margin-bottom:10px;font-style:italic;">Experience earned beyond the classroom walls:</p>
+              <div class="achievement">
+                <div class="achievement-seal">⚡</div>
+                <div class="achievement-text">
+                  <div class="achievement-name">NGO Campaign</div>
+                  <div class="achievement-detail">Participated in NGO activites</div>
+                </div>
+              </div>
+              <div class="achievement">
+                <div class="achievement-seal">🔬</div>
+                <div class="achievement-text">
+                  <div class="achievement-name">Event Assistant</div>
+                  <div class="achievement-detail">Assisted college Events.</div>
+                </div>
+              </div>
+            </div>
+            <span class="page-num">5</span>
+          </div>
+          <div class="page page-right">
+            <div class="corner-deco tr"></div><div class="corner-deco br"></div>
+            <div class="page-content">
+              <div class="page-chapter">Trophies &amp; Honours</div>
+              <div class="page-title">The Trophy Cabinet</div>
+              <div class="page-rule"></div>
+              <div class="achievement">
+                <div class="achievement-seal">🏆</div>
+                <div class="achievement-text">
+                  <div class="achievement-name">Java Certification course</div>
+                  <div class="achievement-detail">Complete Java certified course · December 2025 ·</div>
+                </div>
+              </div>
+              <div class="achievement">
+                <div class="achievement-seal">🥇</div>
+                <div class="achievement-text">
+                  <div class="achievement-name">HTML CSS JavaScript Practitioner</div>
+                  <div class="achievement-detail">Creating Website · Since · 2024</div>
+                </div>
+              </div>
+              <div class="achievement">
+  <div class="achievement-seal">📊</div>
+  <div class="achievement-text">
+    <div class="achievement-name">LeetCode — Top 10%</div>
+    <div class="achievement-detail">50+ problems solved</div>
+  </div>
+</div>
+            </div>
+            <span class="page-num">6</span>
+          </div>
+        </div>
+
+        <!-- SPREAD 4: Contact + Resume (both inside book) -->
+        <div class="page-spread" id="spread-4">
+          <div class="page page-left">
+            <div class="corner-deco tl"></div><div class="corner-deco bl"></div>
+            <div class="page-content">
+              <div class="page-chapter">Epilogue</div>
+              <div class="page-title">Send an Owl</div>
+              <div class="page-rule-double"></div>
+              <p class="page-body" style="margin-bottom:10px;font-style:italic;">If you have a quest or simply wish to parley, dispatch your message below.</p>
+              <div class="contact-form" id="contactForm">
+                <div class="form-group">
+                  <label>Your Name</label>
+                  <input type="text" placeholder="e.g. Hermione Granger" id="fname">
+                </div>
+                <div class="form-group">
+                  <label>Your Owl Post (Email)</label>
+                  <input type="email" placeholder="owl@hogwarts.edu" id="femail">
+                </div>
+                <div class="form-group">
+                  <label>Your Message</label>
+                  <textarea placeholder="Speak, friend, and enter..." id="fmessage"></textarea>
+                </div>
+                <button class="spell-btn" onclick="submitForm()">✦ Expecto Patronum ✦</button>
+              </div>
+              <div class="success-msg" id="successMsg">
+                <div class="success-spell">Expecto Patronum!</div>
+                <p class="page-body" style="font-style:italic;">Your message soars through the enchanted ether. A reply shall arrive by the next full moon.</p>
+              </div>
+            </div>
+            <span class="page-num">7</span>
+          </div>
+          <div class="page page-right">
+            <div class="corner-deco tr"></div><div class="corner-deco br"></div>
+            <div class="page-content">
+              <div class="page-chapter">Direct Channels</div>
+              <div class="page-title">The Owl Post</div>
+              <div class="page-rule"></div>
+              <div class="contact-socials">
+                <div class="social-row"><div class="social-icon">@</div>soumyaghag@gmail.com</div>
+                <div class="social-row"><div class="social-icon">in</div>linkedin.com/in/ghagsoumya</div>
+                <div class="social-row"><div class="social-icon">gh</div>github.com/soumyaghag</div>
+                <div class="social-row"><div class="social-icon">tw</div>@soumyax</div>
+                <div class="social-row"><div class="social-icon">📍</div>Mumbai, Maharashtra · India 🇮🇳</div>
+              </div>
+              <div class="page-rule" style="margin-top:14px;"></div>
+              <!-- Resume Download — INSIDE THE BOOK -->
+              <div class="resume-download-box">
+                <span class="resume-scroll-icon">📜</span>
+                <div class="resume-title">— The Sacred Scroll —</div>
+                <div class="resume-desc">Summon the full compendium of my enchantments, battles, and arcane knowledge — distilled unto a single parchment.</div>
+                <button class="resume-btn" onclick="downloadResume()">⬇ Download Résumé</button>
+                <p style="font-family:'IM Fell English',serif;font-style:italic;font-size:8.5px;color:var(--ink-light);margin-top:6px;">The scroll shall be dispatched forthwith</p>
+              </div>
+              <div class="page-rule" style="margin-top:12px;"></div>
+              <p style="font-family:'Cinzel Decorative',serif;font-size:clamp(7px,1vw,9px);color:var(--gold-dark);text-align:center;margin-top:8px;letter-spacing:1px;">✦ Mischief Managed ✦</p>
+              <p style="font-family:'Cinzel',serif;font-size:clamp(7px,0.9vw,8.5px);color:rgba(201,168,76,0.35);text-align:center;margin-top:5px;letter-spacing:2px;">TURN RIGHT TO CLOSE THE TOME</p>
+            </div>
+            <span class="page-num">8</span>
+          </div>
+        </div>
+
+      </div><!-- end pages-wrapper -->
+    </div><!-- end open-container -->
+
+    <!-- BACK COVER (shows when navigating past last spread) -->
+    <div class="back-cover-spread" id="backCover">
+      <div class="back-cover">
+        <div class="back-cover-frame-outer"></div>
+        <div class="back-cover-frame-inner"></div>
+
+        <!-- Same corner ornaments as front -->
+        <div class="cover-corner tl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+        <div class="cover-corner tr"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+        <div class="cover-corner bl"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+        <div class="cover-corner br"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2 L18 2 L18 5 L5 5 L5 18 L2 18 Z" fill="rgba(201,168,76,0.5)" stroke="rgba(201,168,76,0.7)" stroke-width="0.5"/><circle cx="20" cy="20" r="3" fill="rgba(201,168,76,0.3)" stroke="rgba(201,168,76,0.6)" stroke-width="0.5"/></svg></div>
+        <div class="cover-band-h top"></div>
+        <div class="cover-band-h bot"></div>
+
+        <div class="back-cover-content">
+          <!-- Small medallion -->
+          <svg class="back-medallion" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="65" cy="65" r="60" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+            <path d="M65 18 L98 32 L98 68 Q98 92 65 108 Q32 92 32 68 L32 32 Z" fill="rgba(20,8,0,0.5)" stroke="rgba(139,107,30,0.7)" stroke-width="1.5"/>
+            <path d="M72 30 L54 62 L68 62 L58 90 L80 55 L65 55 Z" fill="rgba(201,168,76,0.7)"/>
+          </svg>
+
+          <div class="back-cover-rule"></div>
+          <div class="hire-badge">✦ Hire the Magician ✦</div>
+          <div class="back-cover-title">Soumya Ghag</div>
+          <div class="back-cover-subtitle">Software Developer · Mumbai, India</div>
+          <div class="back-cover-rule"></div>
+
+          <p style="font-family:'IM Fell English',serif;font-style:italic;font-size:clamp(9px,1.3vw,12px);color:rgba(201,168,76,0.55);text-align:center;max-width:420px;line-height:1.6;">
+            The tome is sealed, but the adventure continues. If you seek a wizard to conjure extraordinary digital experiences, the enchanted channels below await your summons.
+          </p>
+
+      <div class="back-contact-grid">
+
+  <div class="back-contact-item">
+    <span class="back-contact-label">Email</span>
+    <a href="mailto:soumyaghag@gmail.com" class="back-contact-value">
+      soumyaghag@gmail.com
+    </a>
+  </div>
+
+  <div class="back-contact-item">
+    <span class="back-contact-label">LinkedIn</span>
+    <a href="https://linkedin.com/in/soumyaghag" target="_blank" class="back-contact-value">
+      linkedin.com/in/soumyaghag
+    </a>
+  </div>
+
+  <div class="back-contact-item">
+    <span class="back-contact-label">GitHub</span>
+    <a href="https://github.com/soumyaghag" target="_blank" class="back-contact-value">
+      github.com/soumyaghag
+    </a>
+  </div>
+
+  <div class="back-contact-item">
+    <span class="back-contact-label">Location</span>
+    <a href="https://www.google.com/maps?q=Mumbai,+Maharashtra" target="_blank" class="back-contact-value">
+      Mumbai, Maharashtra 🇮🇳
+    </a>
+  </div>
+
+</div>
+
+          <div class="back-cover-rule"></div>
+          <div class="back-seal">Soumya Ghag · Software Developer MMXXIV</div>
+          <div class="back-hint hint-anim">← Turn Left to Return</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end book-open -->
+
+</div><!-- end theBook -->
+</div><!-- end book-scene -->
+
+<!-- Page dots indicator -->
+<div class="page-dots" id="pageDots" style="display:none;">
+  <div class="page-dot active" onclick="goToSpread(0)"></div>
+  <div class="page-dot" onclick="goToSpread(1)"></div>
+  <div class="page-dot" onclick="goToSpread(2)"></div>
+  <div class="page-dot" onclick="goToSpread(3)"></div>
+  <div class="page-dot" onclick="goToSpread(4)"></div>
+  <div class="page-dot" style="background:rgba(139,26,26,0.2);border-color:rgba(139,26,26,0.4);" onclick="goToSpread(5)"></div>
+</div>
+<div class="page-indicator-label" id="pageLabel" style="display:none;"></div>
+
+<script>
+// === State ===
+const TOTAL_SPREADS = 5; // 0..4 = pages, 5 = back cover
+const SPREAD_NAMES = ['Foreword · Education','Skills & Spells','Projects','Experience & Awards','Contact & Résumé','Back Cover'];
+let cur = 0;
+let isOpen = false;
+let turning = false;
+let mouseX = 0, mouseY = 0;
+
+// === CUSTOM CURSOR + GLITTER ===
+const cursor = document.getElementById('cursor');
+const glitterCanvas = document.getElementById('glitterCanvas');
+const gCtx = glitterCanvas.getContext('2d');
+const glitters = [];
+
+function resizeGlitter(){
+  glitterCanvas.width = window.innerWidth;
+  glitterCanvas.height = window.innerHeight;
+}
+resizeGlitter();
+window.addEventListener('resize', resizeGlitter);
+
+const GLITTER_COLORS = [
+  'rgba(201,168,76,', 'rgba(240,208,128,', 'rgba(255,240,180,',
+  'rgba(255,255,200,', 'rgba(139,26,26,', 'rgba(180,220,255,'
+];
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+
+  // Spawn glitter particles
+  if(Math.random() < 0.55){
+    const count = Math.floor(Math.random()*3)+1;
+    for(let i=0;i<count;i++){
+      const col = GLITTER_COLORS[Math.floor(Math.random()*GLITTER_COLORS.length)];
+      glitters.push({
+        x: mouseX + (Math.random()-0.5)*12,
+        y: mouseY + (Math.random()-0.5)*12,
+        vx: (Math.random()-0.5)*2.5,
+        vy: (Math.random()-0.8)*3,
+        size: Math.random()*3+0.8,
+        alpha: 1,
+        decay: 0.025 + Math.random()*0.03,
+        color: col,
+        shape: Math.random() > 0.5 ? 'circle' : 'diamond',
+        rotation: Math.random()*Math.PI*2,
+        rotationSpeed: (Math.random()-0.5)*0.15
+      });
+    }
+  }
+});
+
+document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+document.addEventListener('mouseenter', () => { cursor.style.opacity = '1'; });
+
+function animateGlitter(){
+  gCtx.clearRect(0,0,glitterCanvas.width,glitterCanvas.height);
+  for(let i = glitters.length-1; i>=0; i--){
+    const g = glitters[i];
+    g.x += g.vx;
+    g.y += g.vy;
+    g.vy += 0.08; // gravity
+    g.alpha -= g.decay;
+    g.rotation += g.rotationSpeed;
+    if(g.alpha <= 0){ glitters.splice(i,1); continue; }
+
+    gCtx.save();
+    gCtx.globalAlpha = g.alpha;
+    gCtx.fillStyle = g.color + g.alpha + ')';
+    gCtx.translate(g.x, g.y);
+    gCtx.rotate(g.rotation);
+
+    if(g.shape === 'circle'){
+      gCtx.beginPath();
+      gCtx.arc(0,0,g.size,0,Math.PI*2);
+      gCtx.fill();
+    } else {
+      const s = g.size * 1.3;
+      gCtx.beginPath();
+      gCtx.moveTo(0,-s);gCtx.lineTo(s,0);gCtx.lineTo(0,s);gCtx.lineTo(-s,0);
+      gCtx.closePath();gCtx.fill();
+    }
+    // Tiny sparkle cross
+    gCtx.strokeStyle = g.color + Math.min(g.alpha*1.5,1) + ')';
+    gCtx.lineWidth = 0.5;
+    gCtx.beginPath();
+    gCtx.moveTo(-g.size*2,0);gCtx.lineTo(g.size*2,0);
+    gCtx.moveTo(0,-g.size*2);gCtx.lineTo(0,g.size*2);
+    gCtx.stroke();
+
+    gCtx.restore();
+  }
+  requestAnimationFrame(animateGlitter);
+}
+animateGlitter();
+
+// === STARFIELD ===
+const starCanvas = document.getElementById('starCanvas');
+const sCtx = starCanvas.getContext('2d');
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+
+function resize(){
+  starCanvas.width = pCanvas.width = window.innerWidth;
+  starCanvas.height = pCanvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+let stars = [];
+function initStars(){
+  stars = [];
+  for(let i=0;i<180;i++){
+    stars.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.2+0.2,a:Math.random()*0.7+0.1,phase:Math.random()*Math.PI*2});
+  }
+}
+function drawStars(){
+  sCtx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  const t = Date.now()*0.001;
+  stars.forEach(s=>{
+    const alpha = s.a*(0.6+0.4*Math.sin(t*0.7+s.phase));
+    sCtx.save();sCtx.globalAlpha=alpha;sCtx.fillStyle='#fffce8';
+    sCtx.beginPath();sCtx.arc(s.x,s.y,s.r,0,Math.PI*2);sCtx.fill();sCtx.restore();
+  });
+  requestAnimationFrame(drawStars);
+}
+const particles = Array.from({length:35},()=>({
+  x:Math.random()*1920,y:Math.random()*1080+1080,
+  size:Math.random()*2+0.4,speed:Math.random()*0.5+0.15,
+  drift:(Math.random()-0.5)*0.35,
+  color:Math.random()>0.5?'#c9a84c':'#f0d080',
+  phase:Math.random()*Math.PI*2
+}));
+function drawParticles(){
+  pCtx.clearRect(0,0,pCanvas.width,pCanvas.height);
+  const t=Date.now()*0.001;
+  particles.forEach(p=>{
+    const alpha=0.15+0.55*Math.abs(Math.sin(t*0.8+p.phase));
+    pCtx.save();pCtx.globalAlpha=alpha;pCtx.fillStyle=p.color;
+    pCtx.beginPath();pCtx.arc(p.x,p.y,p.size,0,Math.PI*2);pCtx.fill();pCtx.restore();
+    p.y-=p.speed;p.x+=p.drift;
+    if(p.y<-10){p.y=pCanvas.height+10;p.x=Math.random()*pCanvas.width;}
+  });
+  requestAnimationFrame(drawParticles);
+}
+initStars();drawStars();drawParticles();
+
+// === SKILL ANIMATION ===
+function animateSkills(spreadEl){
+  if(!spreadEl) return;
+  spreadEl.querySelectorAll('.skill-fill').forEach((bar,i)=>{
+    bar.style.transition='none';bar.style.transform='scaleX(0)';
+    setTimeout(()=>{bar.style.transition='transform 1s ease';bar.style.transform='scaleX(1)';},i*80+100);
+  });
+}
+
+// === PAGE DOTS ===
+function updateDots(){
+  const dots = document.querySelectorAll('.page-dot');
+  dots.forEach((d,i)=>d.classList.toggle('active',i===cur));
+  const label = document.getElementById('pageLabel');
+  label.textContent = SPREAD_NAMES[cur] || '';
+}
+
+// === OPEN BOOK ===
+function openBook(){
+  if(isOpen)return;
+  isOpen=true;
+  spawnSparkles();
+  const closed=document.getElementById('closedBook');
+  const open=document.getElementById('openBook');
+  closed.style.animation='close-book 0.5s ease-in forwards';
+  setTimeout(()=>{
+    closed.style.display='none';
+    open.classList.add('visible');
+    open.style.animation='open-book 0.5s ease-out forwards';
+    document.getElementById('pageDots').style.display='flex';
+    document.getElementById('pageLabel').style.display='block';
+    updateDots();
+    animateSkills(document.getElementById('spread-0'));
+  },480);
+}
+
+// === CLOSE TO FRONT COVER ===
+function closeToFront(){
+  if(!isOpen||turning)return;
+  turning=true;
+  spawnSparkles();
+  const open=document.getElementById('openBook');
+  const closed=document.getElementById('closedBook');
+  open.style.animation='close-book 0.5s ease-in forwards';
+  setTimeout(()=>{
+    open.classList.remove('visible');open.style.animation='';
+    // Reset all spreads
+    document.querySelectorAll('.page-spread').forEach((s,i)=>s.classList.toggle('active',i===0));
+    document.getElementById('backCover').classList.remove('active');
+    document.getElementById('pagesWrapper').style.display='';
+    closed.style.display='flex';
+    closed.style.animation='open-book 0.55s ease-out forwards';
+    document.getElementById('pageDots').style.display='none';
+    document.getElementById('pageLabel').style.display='none';
+    isOpen=false;cur=0;turning=false;
+  },500);
+}
+
+// === CLICK ZONES ===
+function handleLeftClick(){
+  if(!isOpen||turning)return;
+  if(cur===0){
+    // At first spread, left click closes to front cover
+    closeToFront();
+  } else {
+    prevPage();
+  }
+}
+
+function handleRightClick(){
+  if(!isOpen||turning)return;
+  if(cur===TOTAL_SPREADS){ // On back cover
+    // Right click on back cover... nothing (already at end)
+    return;
+  }
+  if(cur===TOTAL_SPREADS-1){
+    // Last content spread → show back cover
+    goToBackCover();
+  } else {
+    nextPage();
+  }
+}
+
+// === BACK COVER NAVIGATION ===
+function goToBackCover(){
+  if(turning)return;
+  turning=true;
+  const currentSpread=document.getElementById('spread-'+(TOTAL_SPREADS-1));
+  currentSpread.classList.add('flip-right-out');
+  setTimeout(()=>{
+    currentSpread.classList.remove('active','flip-right-out');
+    document.getElementById('pagesWrapper').style.display='none';
+    const bc=document.getElementById('backCover');
+    bc.classList.add('active');
+    bc.style.animation='open-book 0.5s ease-out forwards';
+    cur=TOTAL_SPREADS;
+    updateDots();
+    turning=false;
+  },420);
+}
+
+function goBackFromBackCover(){
+  if(turning)return;
+  turning=true;
+  const bc=document.getElementById('backCover');
+  bc.style.animation='close-book 0.4s ease-in forwards';
+  setTimeout(()=>{
+    bc.classList.remove('active');bc.style.animation='';
+    document.getElementById('pagesWrapper').style.display='';
+    const spread=document.getElementById('spread-'+(TOTAL_SPREADS-1));
+    spread.classList.add('active','flip-left-in');
+    setTimeout(()=>{spread.classList.remove('flip-left-in');},420);
+    cur=TOTAL_SPREADS-1;
+    updateDots();
+    turning=false;
+  },400);
+}
+
+// === PAGE NAVIGATION ===
+function showSpread(idx, dir){
+  const prev=document.getElementById('spread-'+(idx-dir));
+  const next=document.getElementById('spread-'+idx);
+  const outClass=dir>0?'flip-right-out':'flip-left-out';
+  const inClass=dir>0?'flip-right-in':'flip-left-in';
+  prev.classList.add(outClass);
+  setTimeout(()=>{
+    prev.classList.remove('active',outClass);
+    next.classList.add('active',inClass);
+    setTimeout(()=>{
+      next.classList.remove(inClass);
+      animateSkills(next);
+      updateDots();
+      turning=false;
+    },420);
+  },420);
+}
+
+function nextPage(){
+  if(turning||cur>=TOTAL_SPREADS-1)return;
+  turning=true;cur++;
+  showSpread(cur,1);
+}
+function prevPage(){
+  if(turning||cur<=0)return;
+  turning=true;cur--;
+  showSpread(cur,-1);
+}
+
+function goToSpread(idx){
+  if(!isOpen||turning)return;
+  if(idx===TOTAL_SPREADS){
+    if(cur===TOTAL_SPREADS) return;
+    // Show back cover
+    if(cur<TOTAL_SPREADS-1){
+      // Skip to last then show back
+      const prev=document.getElementById('spread-'+cur);
+      prev.classList.remove('active');
+      const last=document.getElementById('spread-'+(TOTAL_SPREADS-1));
+      last.classList.add('active');
+      cur=TOTAL_SPREADS-1;
+      goToBackCover();
+    } else {
+      goToBackCover();
+    }
+    return;
+  }
+  if(cur===TOTAL_SPREADS){
+    // Coming from back cover
+    goBackFromBackCover();
+    return;
+  }
+  if(idx===cur)return;
+  const dir=idx>cur?1:-1;
+  turning=true;
+  const prevEl=document.getElementById('spread-'+cur);
+  const nextEl=document.getElementById('spread-'+idx);
+  const outClass=dir>0?'flip-right-out':'flip-left-out';
+  const inClass=dir>0?'flip-right-in':'flip-left-in';
+  prevEl.classList.add(outClass);
+  setTimeout(()=>{
+    prevEl.classList.remove('active',outClass);
+    nextEl.classList.add('active',inClass);
+    setTimeout(()=>{
+      nextEl.classList.remove(inClass);
+      animateSkills(nextEl);
+      cur=idx;updateDots();turning=false;
+    },420);
+  },420);
+}
+
+// Attach click to back cover for going back
+document.getElementById('backCover').addEventListener('click',function(e){
+  if(!turning) goBackFromBackCover();
+});
+
+// === KEYBOARD ===
+document.addEventListener('keydown',e=>{
+  if(!isOpen)return;
+  if(e.key==='ArrowRight'){
+    if(cur===TOTAL_SPREADS){return;}
+    if(cur===TOTAL_SPREADS-1){goToBackCover();}else{nextPage();}
+  }
+  if(e.key==='ArrowLeft'){
+    if(cur===TOTAL_SPREADS){goBackFromBackCover();}
+    else if(cur===0){closeToFront();}
+    else{prevPage();}
+  }
+  if(e.key==='Escape'){
+    if(cur===TOTAL_SPREADS){goBackFromBackCover();}
+    else{closeToFront();}
+  }
+});
+
+// === CONTACT FORM ===
+function submitForm(){
+  const n=document.getElementById('fname').value.trim();
+  const em=document.getElementById('femail').value.trim();
+  const m=document.getElementById('fmessage').value.trim();
+  if(!n||!em||!m){alert('Please fill all fields, young wizard.');return;}
+  document.getElementById('contactForm').style.display='none';
+  document.getElementById('successMsg').classList.add('show');
+  spawnSparkles();
+}
+
+// === RESUME ===
+// === RESUME DOWNLOAD ===
+function downloadResume() {
+  const resumeUrl = "https://drive.google.com/uc?export=download&id=1wO25VMuzuk0oBN-WjauamH0CCQwYiydk";
+
+  const a = document.createElement("a");
+  a.href = resumeUrl;
+  a.download = "Soumya_Ghag_Resume.pdf";
+  a.target = "_blank";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// === SPARKLES ===
+function spawnSparkles(){
+  const colors=['#c9a84c','#f0d080','#fffce0','#8b1a1a','#fff'];
+  for(let i=0;i<28;i++){
+    const el=document.createElement('div');
+    const tx=(Math.random()>0.5?1:-1)*(30+Math.random()*90);
+    const ty=-(30+Math.random()*110);
+    el.style.cssText=`
+      position:fixed;pointer-events:none;z-index:9996;border-radius:50%;
+      left:${20+Math.random()*60}%;top:${15+Math.random()*65}%;
+      width:${Math.random()*5+2}px;height:${Math.random()*5+2}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation:glitter-fall ${0.4+Math.random()*0.7}s ease-out forwards;
+      animation-delay:${Math.random()*0.2}s;
+      --gx:${tx}px;--gy:${ty}px;--gr:${Math.random()*360}deg;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  }
+}
+
+// Update cursor style on hoverable elements
+document.querySelectorAll('button,.spell-btn,.resume-btn,.page-dot,.book-closed,.click-zone').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursor.classList.add('wand'));
+  el.addEventListener('mouseleave',()=>cursor.classList.remove('wand'));
+});
+</script>
+</body>
+</html>
